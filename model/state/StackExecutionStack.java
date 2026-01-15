@@ -1,7 +1,6 @@
 package model.state;
 
 import model.statement.Statement;
-
 import java.util.LinkedList;
 import java.util.List;
 
@@ -26,5 +25,14 @@ public class StackExecutionStack implements ExecutionStack {
     @Override
     public Statement peek() {
         return stack.peekFirst();
+    }
+
+    @Override
+    public String toString() {
+        StringBuilder sb = new StringBuilder();
+        for (Statement s : stack) {
+            sb.append(s.toString()).append(" ");
+        }
+        return sb.toString();
     }
 }

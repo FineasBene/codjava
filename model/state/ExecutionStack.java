@@ -7,4 +7,5 @@ public interface ExecutionStack {
     Statement pop();
     boolean isEmpty();
     Statement peek();
+    String toString();
 }

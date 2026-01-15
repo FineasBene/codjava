@@ -1,6 +1,5 @@
 package model.state;
 
-
 import java.util.ArrayList;
 import java.util.List;
 
@@ -18,6 +17,10 @@ public class ListOut implements Out {
 
     @Override
     public String toString() {
-        return outputList.toString();
+        StringBuilder sb = new StringBuilder();
+        for (Object o : outputList) {
+            sb.append(o.toString()).append(" ");
+        }
+        return sb.toString();
     }
 }
