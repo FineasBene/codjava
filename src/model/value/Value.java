@@ -4,5 +4,5 @@ import model.type.Type;
 
 public interface Value {
     Type getType();
-    boolean equals(Object other); // Adăugat pentru a impune implementarea
+    boolean equals(Object other);
 }

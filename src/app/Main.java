@@ -2,6 +2,7 @@ package app;
 
 import controller.Controller;
 import model.expression.*;
+import model.exception.MyException;
 import model.state.*;
 import model.statement.*;
 import model.type.*;
@@ -14,6 +15,7 @@ import view.RunExample;
 import view.TextMenu;
 
 import java.io.IOException;
+import java.util.HashMap;
 
 public class Main {
     public static void main(String[] args) {
@@ -21,18 +23,19 @@ public class Main {
         menu.addCommand(new ExitCommand("0", "Exit"));
 
         try {
+            // --- EXEMPLE INITIALE (FARA HEAP) ---
+
             // Exemplul 1: int v; v=2; Print(v)
             Statement ex1 = new CompoundStatement(
                     new VariableDeclarationStatement(new IntType(), "v"),
                     new CompoundStatement(
-                            new AssignmentStatement(new ConstantExpression(new IntegerValue(2)), "v"),
+                            new AssignmentStatement(new ConstantExpression(new IntegerValue(1)), "v"),
                             new PrintStatement(new VariableExpression("v"))
                     )
             );
             menu.addCommand(createCommand("1", "Basic: " + ex1.toString(), ex1, "log1.txt"));
 
             // Exemplul 2: Aritmetic
-            // int a; a=2+3*5; int b; b=a-4/2+7; Print(b)
             Statement ex2 = new CompoundStatement(
                     new VariableDeclarationStatement(new IntType(), "a"),
                     new CompoundStatement(
@@ -73,7 +76,6 @@ public class Main {
             menu.addCommand(createCommand("2", "Arithmetic: " + ex2.toString(), ex2, "log2.txt"));
 
             // Exemplul 3: Conditional (IF)
-            // bool a; a=false; int v; If a Then v=2 Else v=3; Print(v)
             Statement ex3 = new CompoundStatement(
                     new VariableDeclarationStatement(new BoolType(), "a"),
                     new CompoundStatement(
@@ -93,8 +95,7 @@ public class Main {
             );
             menu.addCommand(createCommand("3", "If: " + ex3.toString(), ex3, "log3.txt"));
 
-            // Exemplul 4: Fisiere (File Operations)
-            // string varf; varf="test.in"; openRFile(varf); int varc; readFile(varf,varc); print(varc); ...
+            // Exemplul 4: Fisiere
             Statement ex4 = new CompoundStatement(
                     new VariableDeclarationStatement(new StringType(), "varf"),
                     new CompoundStatement(
@@ -122,114 +123,144 @@ public class Main {
             );
             menu.addCommand(createCommand("4", "Files: " + ex4.toString(), ex4, "log4.txt"));
 
-            // --- EXEMPLE NOI (LAB 7 - HEAP & WHILE) ---
+            // --- EXEMPLE HEAP & WHILE (LAB 7) ---
 
             // Exemplu 5: Heap Allocation
-            // Ref int v; new(v,20); Ref Ref int a; new(a,v); print(v); print(a)
             Statement ex5 = new CompoundStatement(
-                    new VariableDeclarationStatement(new RefType(new IntType()), "v"),
+                new VariableDeclarationStatement(new RefType(new IntType()), "v"),
+                new CompoundStatement(
+                    new NewStatement("v", new ConstantExpression(new IntegerValue(20))),
                     new CompoundStatement(
-                            new NewStatement("v", new ConstantExpression(new IntegerValue(20))),
+                        new VariableDeclarationStatement(new RefType(new RefType(new IntType())), "a"),
+                        new CompoundStatement(
+                            new NewStatement("a", new VariableExpression("v")),
                             new CompoundStatement(
-                                    new VariableDeclarationStatement(new RefType(new RefType(new IntType())), "a"),
-                                    new CompoundStatement(
-                                            new NewStatement("a", new VariableExpression("v")),
-                                            new CompoundStatement(
-                                                    new PrintStatement(new VariableExpression("v")),
-                                                    new PrintStatement(new VariableExpression("a"))
-                                            )
-                                    )
+                                new PrintStatement(new VariableExpression("v")),
+                                new PrintStatement(new VariableExpression("a"))
                             )
+                        )
                     )
+                )
             );
             menu.addCommand(createCommand("5", "Heap Alloc: " + ex5.toString(), ex5, "log5.txt"));
 
             // Exemplu 6: Read Heap
-            // Ref int v; new(v,20); Ref Ref int a; new(a,v); print(rH(v)); print(rH(rH(a))+5)
             Statement ex6 = new CompoundStatement(
-                    new VariableDeclarationStatement(new RefType(new IntType()), "v"),
+                new VariableDeclarationStatement(new RefType(new IntType()), "v"),
+                new CompoundStatement(
+                    new NewStatement("v", new ConstantExpression(new IntegerValue(20))),
                     new CompoundStatement(
-                            new NewStatement("v", new ConstantExpression(new IntegerValue(20))),
+                        new VariableDeclarationStatement(new RefType(new RefType(new IntType())), "a"),
+                        new CompoundStatement(
+                            new NewStatement("a", new VariableExpression("v")),
                             new CompoundStatement(
-                                    new VariableDeclarationStatement(new RefType(new RefType(new IntType())), "a"),
-                                    new CompoundStatement(
-                                            new NewStatement("a", new VariableExpression("v")),
-                                            new CompoundStatement(
-                                                    new PrintStatement(new ReadHeapExpression(new VariableExpression("v"))),
-                                                    new PrintStatement(new BinaryOperatorExpression("+",
-                                                            new ReadHeapExpression(new ReadHeapExpression(new VariableExpression("a"))),
-                                                            new ConstantExpression(new IntegerValue(5))
-                                                    ))
-                                            )
-                                    )
+                                new PrintStatement(new ReadHeapExpression(new VariableExpression("v"))),
+                                new PrintStatement(new BinaryOperatorExpression("+",
+                                    new ReadHeapExpression(new ReadHeapExpression(new VariableExpression("a"))),
+                                    new ConstantExpression(new IntegerValue(5))
+                                ))
                             )
+                        )
                     )
+                )
             );
             menu.addCommand(createCommand("6", "Read Heap: " + ex6.toString(), ex6, "log6.txt"));
 
             // Exemplu 7: Write Heap
-            // Ref int v; new(v,20); print(rH(v)); wH(v,30); print(rH(v)+5);
             Statement ex7 = new CompoundStatement(
-                    new VariableDeclarationStatement(new RefType(new IntType()), "v"),
+                new VariableDeclarationStatement(new RefType(new IntType()), "v"),
+                new CompoundStatement(
+                    new NewStatement("v", new ConstantExpression(new IntegerValue(20))),
                     new CompoundStatement(
-                            new NewStatement("v", new ConstantExpression(new IntegerValue(20))),
-                            new CompoundStatement(
-                                    new PrintStatement(new ReadHeapExpression(new VariableExpression("v"))),
-                                    new CompoundStatement(
-                                            new WriteHeapStatement("v", new ConstantExpression(new IntegerValue(30))),
-                                            new PrintStatement(new BinaryOperatorExpression(
-                                                    "+",
-                                                    new ReadHeapExpression(new VariableExpression("v")),
-                                                    new ConstantExpression(new IntegerValue(5))
-                                            ))
-                                    )
-                            )
+                        new PrintStatement(new ReadHeapExpression(new VariableExpression("v"))),
+                        new CompoundStatement(
+                            new WriteHeapStatement("v", new ConstantExpression(new IntegerValue(30))),
+                            new PrintStatement(new BinaryOperatorExpression(
+                                "+",
+                                new ReadHeapExpression(new VariableExpression("v")),
+                                new ConstantExpression(new IntegerValue(5))
+                            ))
+                        )
                     )
+                )
             );
             menu.addCommand(createCommand("7", "Write Heap: " + ex7.toString(), ex7, "log7.txt"));
 
             // Exemplu 8: Garbage Collector
-            // Ref int v; new(v,20); Ref Ref int a; new(a,v); new(v,30); print(rH(rH(a)))
             Statement ex8 = new CompoundStatement(
-                    new VariableDeclarationStatement(new RefType(new IntType()), "v"),
+                new VariableDeclarationStatement(new RefType(new IntType()), "v"),
+                new CompoundStatement(
+                    new NewStatement("v", new ConstantExpression(new IntegerValue(20))),
                     new CompoundStatement(
-                            new NewStatement("v", new ConstantExpression(new IntegerValue(20))),
+                        new VariableDeclarationStatement(new RefType(new RefType(new IntType())), "a"),
+                        new CompoundStatement(
+                            new NewStatement("a", new VariableExpression("v")),
                             new CompoundStatement(
-                                    new VariableDeclarationStatement(new RefType(new RefType(new IntType())), "a"),
-                                    new CompoundStatement(
-                                            new NewStatement("a", new VariableExpression("v")),
-                                            new CompoundStatement(
-                                                    new NewStatement("v", new ConstantExpression(new IntegerValue(30))),
-                                                    new PrintStatement(new ReadHeapExpression(new ReadHeapExpression(new VariableExpression("a"))))
-                                            )
-                                    )
+                                new NewStatement("v", new ConstantExpression(new IntegerValue(30))),
+                                new PrintStatement(new ReadHeapExpression(new ReadHeapExpression(new VariableExpression("a"))))
                             )
+                        )
                     )
+                )
             );
             menu.addCommand(createCommand("8", "Garbage Collector: " + ex8.toString(), ex8, "log8.txt"));
 
             // Exemplu 9: While Statement
-            // int v; v=4; (while (v>0) print(v);v=v-1); print(v)
             Statement ex9 = new CompoundStatement(
-                    new VariableDeclarationStatement(new IntType(), "v"),
+                new VariableDeclarationStatement(new IntType(), "v"),
+                new CompoundStatement(
+                    new AssignmentStatement(new ConstantExpression(new IntegerValue(4)), "v"),
                     new CompoundStatement(
-                            new AssignmentStatement(new ConstantExpression(new IntegerValue(4)), "v"),
+                        new WhileStatement(
+                            new BinaryOperatorExpression(">", new VariableExpression("v"), new ConstantExpression(new IntegerValue(0))),
                             new CompoundStatement(
-                                    new WhileStatement(
-                                            new BinaryOperatorExpression(">", new VariableExpression("v"), new ConstantExpression(new IntegerValue(0))),
-                                            new CompoundStatement(
-                                                    new PrintStatement(new VariableExpression("v")),
-                                                    new AssignmentStatement(
-                                                            new BinaryOperatorExpression("-", new VariableExpression("v"), new ConstantExpression(new IntegerValue(1))),
-                                                            "v"
-                                                    )
-                                            )
-                                    ),
-                                    new PrintStatement(new VariableExpression("v"))
+                                new PrintStatement(new VariableExpression("v")),
+                                new AssignmentStatement(
+                                    new BinaryOperatorExpression("-", new VariableExpression("v"), new ConstantExpression(new IntegerValue(1))),
+                                    "v"
+                                )
                             )
+                        ),
+                        new PrintStatement(new VariableExpression("v"))
                     )
+                )
             );
             menu.addCommand(createCommand("9", "While Statement: " + ex9.toString(), ex9, "log9.txt"));
+
+            // --- EXEMPLE CONCURENTA (LAB 8) ---
+
+            // Exemplul 10: Fork
+            Statement ex10 = new CompoundStatement(
+                new VariableDeclarationStatement(new IntType(), "v"),
+                new CompoundStatement(
+                    new VariableDeclarationStatement(new RefType(new IntType()), "a"),
+                    new CompoundStatement(
+                        new AssignmentStatement(new ConstantExpression(new IntegerValue(10)), "v"),
+                        new CompoundStatement(
+                            new NewStatement("a", new ConstantExpression(new IntegerValue(22))),
+                            new CompoundStatement(
+                                new ForkStatement(
+                                    new CompoundStatement(
+                                        new WriteHeapStatement("a", new ConstantExpression(new IntegerValue(30))),
+                                        new CompoundStatement(
+                                            new AssignmentStatement(new ConstantExpression(new IntegerValue(32)), "v"),
+                                            new CompoundStatement(
+                                                new PrintStatement(new VariableExpression("v")),
+                                                new PrintStatement(new ReadHeapExpression(new VariableExpression("a")))
+                                            )
+                                        )
+                                    )
+                                ),
+                                new CompoundStatement(
+                                    new PrintStatement(new VariableExpression("v")),
+                                    new PrintStatement(new ReadHeapExpression(new VariableExpression("a")))
+                                )
+                            )
+                        )
+                    )
+                )
+            );
+            menu.addCommand(createCommand("10", "Fork Example: " + ex10.toString(), ex10, "log10.txt"));
 
         } catch (Exception e) {
             System.err.println("Eroare la construirea comenzilor: " + e.getMessage());
@@ -239,6 +270,19 @@ public class Main {
     }
 
     private static Command createCommand(String key, String desc, Statement stmt, String log) throws IOException {
+        // --- TYPE CHECKING STEP (Lab 10) ---
+        try {
+            stmt.typecheck(new HashMap<>());
+        } catch (MyException e) {
+            System.out.println("COMMAND " + key + " TYPE CHECK ERROR: " + e.getMessage());
+            // Putem returna o comanda care doar afiseaza eroarea, sau sa nu adaugam comanda deloc.
+            // Pentru simplitate, vom afisa eroarea la initializare dar permitem crearea (care va crapa la runtime oricum daca e logic gresit, 
+            // dar typechecker-ul ar trebui sa previna asta).
+            // Corect ar fi sa nu permitem rularea.
+            return new ExitCommand(key, "TYPE CHECK FAILED: " + desc);
+        }
+        // -----------------------------------
+
         var exeStack = new StackExecutionStack();
         var symTable = new MapSymbolTable();
         var out = new ListOut();

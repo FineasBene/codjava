@@ -44,7 +44,7 @@ public class MapFileTable implements IFileTable {
     }
 
     @Override
-    public String toString() { // Pentru logare
+    public String toString() {
         StringBuilder sb = new StringBuilder();
         for (StringValue fileName : map.keySet()) {
             sb.append(fileName.toString()).append(" ");

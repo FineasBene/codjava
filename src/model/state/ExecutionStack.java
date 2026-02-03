@@ -1,11 +1,16 @@
 package model.state;
 
+import model.exception.MyException;
 import model.statement.Statement;
+import java.util.List;
 
 public interface ExecutionStack {
-    void push(Statement statement);
-    Statement pop();
+    void push(Statement elem);
+    Statement pop() throws MyException;
     boolean isEmpty();
-    Statement peek();
-    String toString(); // Adăugat pentru a impune implementarea
+
+    // Metoda necesara pentru GUI
+    List<Statement> getStack();
+
+    String toString();
 }

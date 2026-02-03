@@ -4,8 +4,11 @@ import model.exception.MyException;
 import model.expression.Expression;
 import model.state.ProgramState;
 import model.type.BoolType;
+import model.type.Type;
 import model.value.BooleanValue;
 import model.value.Value;
+import java.util.Map;
+import java.util.HashMap;
 
 public record WhileStatement(Expression expression, Statement statement) implements Statement {
     @Override
@@ -27,6 +30,17 @@ public record WhileStatement(Expression expression, Statement statement) impleme
         }
 
         return null;
+    }
+
+    @Override
+    public Map<String, Type> typecheck(Map<String, Type> typeEnv) throws MyException {
+        Type typexp = expression.typecheck(typeEnv);
+        if (typexp.equals(new BoolType())) {
+            statement.typecheck(new HashMap<>(typeEnv));
+            return typeEnv;
+        } else {
+            throw new MyException("The condition of WHILE has not the type bool");
+        }
     }
 
     @Override

@@ -4,8 +4,11 @@ import model.exception.MyException;
 import model.expression.Expression;
 import model.state.ProgramState;
 import model.type.BoolType;
+import model.type.Type;
 import model.value.BooleanValue;
 import model.value.Value;
+import java.util.Map;
+import java.util.HashMap;
 
 public record IfStatement(Expression condition, Statement thenBranch, Statement elseBranch) implements Statement {
     @Override
@@ -24,6 +27,19 @@ public record IfStatement(Expression condition, Statement thenBranch, Statement 
             state.executionStack().push(elseBranch);
         }
         return null;
+    }
+
+    @Override
+    public Map<String, Type> typecheck(Map<String, Type> typeEnv) throws MyException {
+        Type typexp = condition.typecheck(typeEnv);
+        if (typexp.equals(new BoolType())) {
+
+            thenBranch.typecheck(new HashMap<>(typeEnv));
+            elseBranch.typecheck(new HashMap<>(typeEnv));
+            return typeEnv;
+        } else {
+            throw new MyException("The condition of IF has not the type bool");
+        }
     }
 
     @Override

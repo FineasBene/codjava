@@ -1,6 +1,11 @@
 package model.state;
 
+import model.value.Value;
+import java.util.List;
+
 public interface Out {
-    void add(Object value);
-    String toString(); // Adăugat pentru a impune implementarea
+    void add(Value value);
+
+    // Metoda necesara pentru GUI
+    List<Value> getList();
 }

@@ -9,12 +9,12 @@ import model.type.Type;
 import model.value.BooleanValue;
 import model.value.IntegerValue;
 import model.value.Value;
+import java.util.Map;
 
 public record BinaryOperatorExpression(String operator, Expression left, Expression right) implements Expression {
 
     @Override
     public Value evaluate(SymbolTable symTable, IHeap heap) throws MyException {
-        // Pasăm heap-ul mai departe
         var leftTerm = left.evaluate(symTable, heap);
         var rightTerm = right.evaluate(symTable, heap);
 
@@ -36,6 +36,34 @@ public record BinaryOperatorExpression(String operator, Expression left, Express
                 return evaluateRelationalExpression(leftValR, rightValR);
         }
         throw new IllegalArgumentException("Unknown operator: " + operator);
+    }
+
+    @Override
+    public Type typecheck(Map<String, Type> typeEnv) throws MyException {
+        Type typ1 = left.typecheck(typeEnv);
+        Type typ2 = right.typecheck(typeEnv);
+
+        if (operator.equals("+") || operator.equals("-") || operator.equals("*") || operator.equals("/")) {
+            if (typ1.equals(new IntType())) {
+                if (typ2.equals(new IntType())) {
+                    return new IntType();
+                } else throw new MyException("Second operand is not an integer");
+            } else throw new MyException("First operand is not an integer");
+        } else if (operator.equals("<") || operator.equals("<=") || operator.equals(">") || operator.equals(">=") || operator.equals("==") || operator.equals("!=")) {
+            if (typ1.equals(new IntType())) {
+                if (typ2.equals(new IntType())) {
+                    return new BoolType();
+                } else throw new MyException("Second operand is not an integer");
+            } else throw new MyException("First operand is not an integer");
+        } else if (operator.equals("&&") || operator.equals("||")) {
+            if (typ1.equals(new BoolType())) {
+                if (typ2.equals(new BoolType())) {
+                    return new BoolType();
+                } else throw new MyException("Second operand is not a boolean");
+            } else throw new MyException("First operand is not a boolean");
+        }
+
+        throw new MyException("Invalid operator: " + operator);
     }
 
     private void checkTypes(Value leftTerm, Value rightTerm, Type type) throws MyException {

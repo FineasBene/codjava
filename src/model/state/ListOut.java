@@ -1,25 +1,32 @@
 package model.state;
 
+import model.value.Value;
 import java.util.ArrayList;
 import java.util.List;
 
 public class ListOut implements Out {
-    private final List<Object> outputList;
+    private final List<Value> list;
 
     public ListOut() {
-        outputList = new ArrayList<>();
+        this.list = new ArrayList<>();
     }
 
     @Override
-    public void add(Object value) {
-        outputList.add(value);
+    public void add(Value value) {
+        list.add(value);
+    }
+
+    // Implementarea metodei pentru GUI
+    @Override
+    public List<Value> getList() {
+        return list;
     }
 
     @Override
-    public String toString() { // Pentru logare
+    public String toString() {
         StringBuilder sb = new StringBuilder();
-        for (Object o : outputList) {
-            sb.append(o.toString()).append(" ");
+        for (Value v : list) {
+            sb.append(v.toString()).append("\n");
         }
         return sb.toString();
     }

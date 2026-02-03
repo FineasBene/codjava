@@ -1,6 +1,9 @@
 package model.statement;
 
 import model.state.ProgramState;
+import model.exception.MyException;
+import model.type.Type;
+import java.util.Map;
 
 public record CompoundStatement(Statement first, Statement second) implements Statement {
 
@@ -9,7 +12,12 @@ public record CompoundStatement(Statement first, Statement second) implements St
         var stack = state.executionStack();
         stack.push(second);
         stack.push(first);
-        return null; // Modificat pentru a fi consistent (nu state)
+        return state;
+    }
+
+    @Override
+    public Map<String, Type> typecheck(Map<String, Type> typeEnv) throws MyException {
+        return second.typecheck(first.typecheck(typeEnv));
     }
 
     @Override

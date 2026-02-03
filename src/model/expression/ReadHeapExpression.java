@@ -5,6 +5,9 @@ import model.state.IHeap;
 import model.state.SymbolTable;
 import model.value.RefValue;
 import model.value.Value;
+import model.type.Type;
+import model.type.RefType;
+import java.util.Map;
 
 public record ReadHeapExpression(Expression expression) implements Expression {
     @Override
@@ -23,6 +26,17 @@ public record ReadHeapExpression(Expression expression) implements Expression {
         }
 
         return heap.get(address);
+    }
+
+    @Override
+    public Type typecheck(Map<String, Type> typeEnv) throws MyException {
+        Type typ = expression.typecheck(typeEnv);
+        if (typ instanceof RefType) {
+            RefType reft = (RefType) typ;
+            return reft.getInner();
+        } else {
+            throw new MyException("The rH argument is not a Ref Type");
+        }
     }
 
     @Override

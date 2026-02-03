@@ -8,7 +8,7 @@ public record BooleanValue(boolean value) implements Value {
 
     @Override
     public Type getType() {
-        return new BoolType(); // Modificat
+        return new BoolType();
     }
 
     @Override
@@ -17,7 +17,7 @@ public record BooleanValue(boolean value) implements Value {
     }
 
     @Override
-    public boolean equals(Object other) { // Adăugat
+    public boolean equals(Object other) {
         if (this == other) return true;
         if (other == null || getClass() != other.getClass()) return false;
         BooleanValue that = (BooleanValue) other;

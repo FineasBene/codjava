@@ -15,10 +15,12 @@ public class RunExample extends Command {
     public void execute() {
         try {
             controller.allStep();
-        } catch (MyException e) { //
-            System.err.println(" --- RUNTIME ERROR ---");
+        } catch (InterruptedException e) {
+
+            System.err.println("Execution was interrupted");
             System.err.println(e.getMessage());
         } catch (Exception e) {
+
             System.err.println(" --- UNEXPECTED RUNTIME ERROR ---");
             System.err.println(e.getMessage());
             e.printStackTrace();

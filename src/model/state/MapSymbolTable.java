@@ -6,8 +6,15 @@ import java.util.HashMap;
 import java.util.Map;
 
 public class MapSymbolTable implements SymbolTable {
+    private final Map<String, Value> map;
 
-    private final Map<String, Value> map = new HashMap<>();
+    public MapSymbolTable() {
+        this.map = new HashMap<>();
+    }
+
+    private MapSymbolTable(Map<String, Value> newMap) {
+        this.map = newMap;
+    }
 
     @Override
     public boolean isDefined(String variableName) {
@@ -16,9 +23,7 @@ public class MapSymbolTable implements SymbolTable {
 
     @Override
     public Type getType(String variableName) {
-        if (!isDefined(variableName)) {
-            return null;
-        }
+        if (!isDefined(variableName)) return null;
         return map.get(variableName).getType();
     }
 
@@ -37,10 +42,15 @@ public class MapSymbolTable implements SymbolTable {
         return map.get(variableName);
     }
 
-    // Implementarea metodei getContent
     @Override
     public Map<String, Value> getContent() {
         return map;
+    }
+
+    @Override
+    public SymbolTable copy() {
+        Map<String, Value> newMap = new HashMap<>(this.map);
+        return new MapSymbolTable(newMap);
     }
 
     @Override

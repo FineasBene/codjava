@@ -7,12 +7,14 @@ import java.util.ArrayList;
 import java.util.List;
 
 public class Repository implements IRepository {
-    private final List<ProgramState> programs = new ArrayList<>();
+    private List<ProgramState> programs;
     private final String logFilePath;
 
     public Repository(ProgramState initialState, String logFilePath) throws IOException {
         this.logFilePath = logFilePath;
+        this.programs = new ArrayList<>();
         this.programs.add(initialState);
+
         try (PrintWriter logFile = new PrintWriter(new BufferedWriter(new FileWriter(logFilePath, false)))) {
             logFile.println("--- LOG START ---");
         }
@@ -24,18 +26,19 @@ public class Repository implements IRepository {
     }
 
     @Override
-    public ProgramState getCrtPrg() {
-        if (programs.isEmpty()) throw new RuntimeException("No programs");
-        return programs.get(0);
+    public List<ProgramState> getPrgList() {
+        return programs;
     }
 
     @Override
-    public List<ProgramState> getAll() { return programs; }
+    public void setPrgList(List<ProgramState> list) {
+        this.programs = list;
+    }
 
     @Override
-    public void logPrgStateExec() throws MyException {
-        ProgramState prg = getCrtPrg();
+    public void logPrgStateExec(ProgramState prg) throws MyException {
         try (PrintWriter logFile = new PrintWriter(new BufferedWriter(new FileWriter(logFilePath, true)))) {
+            logFile.println("Id: " + prg.getId());
             logFile.println("ExeStack:");
             logFile.println(prg.executionStack().toString());
             logFile.println("SymTable:");
